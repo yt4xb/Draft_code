@@ -35,6 +35,6 @@ sudo apt-get install -y automake make
 sudo apt-get install -y gnuplot
 gunzip -c ldm-6.13.6.tar.gz | pax -r '-s:/:/src/:'
 cd ldm-6.13.6/src
-./configure --with-debug --with-multicast --disable-root-actions CFLAGS=-o0 -g CXXFLAGS=-o0 -g -std=c++11 >configure.log 2>&1
-make install >make.log 2>&1
+./configure --with-debug --with-multicast --disable-root-actions CFLAGS='-o0 -g' CXXFLAGS='-o0 -g -std=c++11' &>configure.log && echo Configured
+make install &> make.log && echo Installed
 sudo make root-actions
