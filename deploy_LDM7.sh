@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -20,7 +19,7 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 more details at http://www.gnu.org/copyleft/gpl.html
 
-brief     Script for installing LDM7 
+brief     Script for installing LDM7
 """
 sudo apt-get install -y libxml2-dev
 sudo apt-get install -y libpng-dev
