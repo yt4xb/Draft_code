@@ -27,7 +27,7 @@ sudo yum install -y zlib1g-devel
 sudo yum install -y pax
 sudo yum install -y libyaml-devel
 sudo yum install -y gcc
-sudo yum install -y g++
+sudo yum install -y gcc-c++
 sudo yum install -y ntp
 sudo yum install -y autoconf
 sudo yum install -y m4
