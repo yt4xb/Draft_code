@@ -30,13 +30,13 @@ from __future__ import division
 import csv
 import re
 import sys
-import pytz
+#import pytz
 import subprocess
 from dateutil.parser import parse
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
-def parseMLDM(feedtype, line):
+def parseMLDM(start_time, feedtype, line):
 	"""Parses the product size and elapsed time received by MLDM.
 
 	Parses the product size and elapsed receiving time consumed
@@ -56,23 +56,26 @@ def parseMLDM(feedtype, line):
 		match = re.search(r'.*mldm.*Received', line)
 		if match:
 			split_line = line.split()
-			# the last column is product index
-			prodindex = int(split_line[-1])
-			# col 6 is size in bytes
-			size = int(split_line[6])
-			# col 0 is the arrival time, col 7 is the insertion time.
-			# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
-			arrival_time = datetime.strptime(split_line[7], "%Y%m%dT%H%M%S.%f")
-			insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
-			rxtime = (arrival_time - insert_time).total_seconds()
-			return (prodindex, size, rxtime)
+			arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%fZ")
+			if arrival_time > start_time:
+				insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
+				# the last column is product index
+				prodindex = int(split_line[-1])
+				# col 6 is size in bytes
+				size = int(split_line[6])
+				# col 0 is the arrival time, col 7 is the insertion time.
+				# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
+				rxtime = (arrival_time - insert_time).total_seconds()
+				return (prodindex, size, rxtime)
+			else:
+				return (-1, -1, -1)
 		else:
 			return (-1, -1, -1)
 	else:
 		return (-1, -1, -1)
 
 
-def parseBackstop(feedtype, line):
+def parseBackstop(start_time, feedtype, line):
 	"""Parses the product size and elapsed time received by the backstop.
 
 	Parses the product size and elapsed receiving time consumed for the
@@ -91,23 +94,25 @@ def parseBackstop(feedtype, line):
 		match = re.search(r'.*down7.*Inserted', line)
 		if match:
 			split_line = line.split()
-			# the last column is product index
-			prodindex = int(split_line[-1])
-			# col 5 is size
-			size = int(split_line[5])
-			# col 0 is the arrival time, col 6 is the insertion time.
-			# arrival_time = parse(split_line[0]).astimezone(pytz.utc).replace(tzinfo=None)
-            # arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%f")
-            arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%f")
-            insert_time = datetime.strptime(split_line[6], "%Y%m%d%H%M%S.%f")
-			rxtime = (arrival_time - insert_time).total_seconds()
-			return (prodindex, size, rxtime)
+			arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%fZ")
+			if arrival_time > start_time:
+				insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
+				# the last column is product index
+				prodindex = int(split_line[-1])
+				# col 6 is size in bytes
+				size = int(split_line[6])
+				# col 0 is the arrival time, col 7 is the insertion time.
+				# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
+				rxtime = (arrival_time - insert_time).total_seconds()
+				return (prodindex, size, rxtime)
+			else:
+				return (-1, -1, -1)
 		else:
 			return (-1, -1, -1)
 	else:
 		return (-1, -1, -1)
 
-def extractLog(feedtype, filename):
+def extractLog(start_time, feedtype, filename):
 	"""Extracts the key information from the log file.
 
 	Args:
@@ -123,8 +128,8 @@ def extractLog(feedtype, filename):
 	vset_dict = {}
 	with open(filename, 'r') as logfile:
 		for i, line in enumerate(logfile):
-			(mprodid, msize, mrxtime) = parseMLDM(feedtype, line)
-			(bprodid, bsize, brxtime) = parseBackstop(feedtype, line)
+			(mprodid, msize, mrxtime) = parseMLDM(start_time, feedtype, line)
+			(bprodid, bsize, brxtime) = parseBackstop(start_time, feedtype, line)
 			if mprodid >= 0:
 				complete_set |= {mprodid}
 				vset |= {mprodid}
@@ -174,13 +179,15 @@ def main(logfile, csvfile):
 		logfile: Filename of the log file.
 		csvfile : Filename of the new file to contain output results.
 	"""
+	
 	w = open(csvfile, 'w+')
-
 	Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
 	(hostname, error) = Object.communicate()
+	local_time = datetime.now()
+	start_time = local_time + timedelta(seconds=-60)
 	feedtype = "NGRID"
 	#while
-	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
+	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(start_time, feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
 	tmp_str = 'Sender aggregate size (B),' \
@@ -188,8 +195,8 @@ def main(logfile, csvfile):
 		  'Successfully received aggregate delay (s),' \
 		  'Number of products successfully received,' \
 		  'Number of products sending,' \
-	  	  'Hostname,' \
-	  	  'Feedtype'+ '\n'
+	  	  'Feedtype,' \
+	  	  'Hostname'+ '\n'
 	w.write(tmp_str)
 	tmp_str = str(complete_size) + ',' + str(ffdr_size) + ',' \
 		+ str(ffdr_time) + ',' + str(len(vset)) + ',' \
