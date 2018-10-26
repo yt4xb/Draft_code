@@ -97,7 +97,11 @@ def parseBackstop(feedtype, line):
 			size = int(split_line[5])
 			# col 0 is the arrival time, col 6 is the insertion time.
 			# arrival_time = parse(split_line[0]).astimezone(pytz.utc).replace(tzinfo=None)
+<<<<<<< HEAD
             # arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%f")
+=======
+            arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%f")
+>>>>>>> f49891311b499d16d5d32e800c257a5c3289709e
             insert_time = datetime.strptime(split_line[6], "%Y%m%d%H%M%S.%f")
 			rxtime = (arrival_time - insert_time).total_seconds()
 			return (prodindex, size, rxtime)
