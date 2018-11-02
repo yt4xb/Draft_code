@@ -47,7 +47,7 @@ def parseMLDM(start_time, feedtype, line):
 			if arrival_time > start_time:
 				insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
 				# the last column is product index
-				prodindex = int(split_line[-1])
+				prodindex = int(split_line[9])
 				# col 6 is size in bytes
 				size = int(split_line[6])
 				# col 0 is the arrival time, col 7 is the insertion time.
@@ -85,7 +85,7 @@ def parseBackstop(start_time, feedtype, line):
 			if arrival_time > start_time:
 				insert_time  = datetime.strptime(split_line[6], "%Y%m%d%H%M%S.%f")
 				# the last column is product index
-				prodindex = int(split_line[-1])
+				prodindex = int(split_line[8])
 				# col 6 is size in bytes
 				size = int(split_line[5])
 				# col 0 is the arrival time, col 7 is the insertion time.
@@ -170,7 +170,7 @@ def main(logfile, csvfile):
 	w = open(csvfile, 'w+')
 	Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
 	(hostname, error) = Object.communicate()
-	local_time = datetime.now()
+	local_time = datetime.utcnow()
 	start_time = local_time + timedelta(seconds=-60)
 	feedtype = "NGRID"
 	#while
