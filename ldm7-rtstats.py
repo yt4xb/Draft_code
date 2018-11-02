@@ -19,7 +19,7 @@ import re
 import sys
 #import pytz
 import subprocess
-from dateutil.parser import parse
+#from dateutil.parser import parse
 from datetime import datetime, timedelta
 
 
@@ -83,11 +83,11 @@ def parseBackstop(start_time, feedtype, line):
 			split_line = line.split()
 			arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%fZ")
 			if arrival_time > start_time:
-				insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
+				insert_time  = datetime.strptime(split_line[6], "%Y%m%d%H%M%S.%f")
 				# the last column is product index
 				prodindex = int(split_line[-1])
 				# col 6 is size in bytes
-				size = int(split_line[6])
+				size = int(split_line[5])
 				# col 0 is the arrival time, col 7 is the insertion time.
 				# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
 				rxtime = (arrival_time - insert_time).total_seconds()
