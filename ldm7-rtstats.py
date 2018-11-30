@@ -73,23 +73,23 @@ def parseBackstop(feedtype, line):
 		(prodindex, prodsize, rxtime): A tuple of product index, product size
 									   and receiving time.
 	"""
-	match =	re.search(r'.*' + feedtype, line)
-	if match:
-		match = re.search(r'.*down7.*Inserted', line)
-		if match:
-			split_line = line.split()
-			arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%fZ")
-			insert_time  = datetime.strptime(split_line[6], "%Y%m%d%H%M%S.%f")
-			# the last column is product index
-			prodindex = int(split_line[8])
-			# col 6 is size in bytes
-			size = int(split_line[5])
-			# col 0 is the arrival time, col 7 is the insertion time.
-			# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
-			rxtime = (arrival_time - insert_time).total_seconds()
-			return (prodindex, size, rxtime)
-		else:
-			return (-1, -1, -1)
+    match =	re.search(r'.*' + feedtype, line)
+    if match:
+        match = re.search(r'.*down7.*Inserted', line)
+        if match:
+        	split_line = line.split()
+        	arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%fZ")
+        	insert_time  = datetime.strptime(split_line[6], "%Y%m%d%H%M%S.%f")
+        	# the last column is product index
+            prodindex = int(split_line[8])
+        	# col 6 is size in bytes
+        	size = int(split_line[5])
+        	# col 0 is the arrival time, col 7 is the insertion time.
+        	# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
+        	rxtime = (arrival_time - insert_time).total_seconds()
+        	return (prodindex, size, rxtime)
+    else:
+    	return (-1, -1, -1)
 	else:
 		return (-1, -1, -1)
 
@@ -169,13 +169,13 @@ def main(logfile, csvfile):
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
-	tmp_str = 'Sender aggregate size (B),' \
-		  'Successfully received aggregate size (B), ' \
-		  'Successfully received aggregate delay (s),' \
-		  'Number of products successfully received,' \
-		  'Number of products sending,' \
-	  	  'Feedtype,' \
-	  	  'Hostname'+ '\n'
+	#tmp_str = 'Sender aggregate size (B),' \
+	#	  'Successfully received aggregate size (B), ' \
+	#	  'Successfully received aggregate delay (s),' \
+	#	  'Number of products successfully received,' \
+	#	  'Number of products sending,' \
+	# 	  'Feedtype,' \
+	#	  'Hostname'+ '\n'
 	w.write(tmp_str)
 	tmp_str = str(complete_size) + ',' + str(ffdr_size) + ',' \
 		+ str(ffdr_time) + ',' + str(len(vset)) + ',' \
