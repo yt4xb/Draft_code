@@ -23,7 +23,7 @@ import subprocess
 from datetime import datetime, timedelta
 
 
-def parseMLDM(feedtype, line):
+def parseMLDM(start_time, feedtype, line):
 	"""Parses the product size and elapsed time received by MLDM.
 
 	Parses the product size and elapsed receiving time consumed
@@ -44,22 +44,25 @@ def parseMLDM(feedtype, line):
 		if match:
 			split_line = line.split()
 			arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%fZ")
-			insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
-			# the last column is product index
-		    prodindex = int(split_line[9])
-			# col 6 is size in bytes
-			size = int(split_line[6])
-			# col 0 is the arrival time, col 7 is the insertion time.
-			# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
-			rxtime = (arrival_time - insert_time).total_seconds()
-			return (prodindex, size, rxtime)
+			if arrival_time > start_time:
+				insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
+				# the last column is product index
+				prodindex = int(split_line[9])
+				# col 6 is size in bytes
+				size = int(split_line[6])
+				# col 0 is the arrival time, col 7 is the insertion time.
+				# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
+				rxtime = (arrival_time - insert_time).total_seconds()
+				return (prodindex, size, rxtime)
+			else:
+				return (-1, -1, -1)
 		else:
 			return (-1, -1, -1)
 	else:
 		return (-1, -1, -1)
 
 
-def parseBackstop(feedtype, line):
+def parseBackstop(start_time, feedtype, line):
 	"""Parses the product size and elapsed time received by the backstop.
 
 	Parses the product size and elapsed receiving time consumed for the
@@ -79,21 +82,24 @@ def parseBackstop(feedtype, line):
 		if match:
 			split_line = line.split()
 			arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%fZ")
-			insert_time  = datetime.strptime(split_line[6], "%Y%m%d%H%M%S.%f")
-			# the last column is product index
-			prodindex = int(split_line[8])
-			# col 6 is size in bytes
-			size = int(split_line[5])
-			# col 0 is the arrival time, col 7 is the insertion time.
-			# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
-			rxtime = (arrival_time - insert_time).total_seconds()
-			return (prodindex, size, rxtime)
+			if arrival_time > start_time:
+				insert_time  = datetime.strptime(split_line[6], "%Y%m%d%H%M%S.%f")
+				# the last column is product index
+				prodindex = int(split_line[8])
+				# col 6 is size in bytes
+				size = int(split_line[5])
+				# col 0 is the arrival time, col 7 is the insertion time.
+				# arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
+				rxtime = (arrival_time - insert_time).total_seconds()
+				return (prodindex, size, rxtime)
+			else:
+				return (-1, -1, -1)
 		else:
 			return (-1, -1, -1)
 	else:
 		return (-1, -1, -1)
 
-def extractLog(feedtype, filename):
+def extractLog(start_time, feedtype, filename):
 	"""Extracts the key information from the log file.
 
 	Args:
@@ -109,8 +115,8 @@ def extractLog(feedtype, filename):
 	vset_dict = {}
 	with open(filename, 'r') as logfile:
 		for i, line in enumerate(logfile):
-			(mprodid, msize, mrxtime) = parseMLDM(feedtype, line)
-			(bprodid, bsize, brxtime) = parseBackstop(feedtype, line)
+			(mprodid, msize, mrxtime) = parseMLDM(start_time, feedtype, line)
+			(bprodid, bsize, brxtime) = parseBackstop(start_time, feedtype, line)
 			if mprodid >= 0:
 				complete_set |= {mprodid}
 				vset |= {mprodid}
@@ -164,9 +170,11 @@ def main(logfile, csvfile):
 	w = open(csvfile, 'w+')
 	Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
 	(hostname, error) = Object.communicate()
+	local_time = datetime.utcnow()
+	start_time = local_time + timedelta(seconds=-60)
 	feedtype = "NGRID"
 	#while
-	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
+	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(start_time, feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
 	tmp_str = 'Sender aggregate size (B),' \
