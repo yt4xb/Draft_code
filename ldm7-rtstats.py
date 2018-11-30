@@ -46,7 +46,7 @@ def parseMLDM(feedtype, line):
 			arrival_time = datetime.strptime(split_line[0], "%Y%m%dT%H%M%S.%fZ")
 			insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
 			# the last column is product index
-		    prodindex = int(split_line[9])
+            prodindex = int(split_line[9])
 			# col 6 is size in bytes
 			size = int(split_line[6])
 			# col 0 is the arrival time, col 7 is the insertion time.
