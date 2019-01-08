@@ -59,11 +59,23 @@ def writefile(data, filename):
             receivedProd = line[5]
             feedtype = line[6]
             hostname = line[7]
-
+            if receivedDelay > 0:
+                thru = float(receivedSize/receivedDelay) * 8
+            else:
+                thru = -1
+            if completeProd > 0:
+                ffdr_num = float(receivedProd / completeProd) * 100
+            else:
+                ffdr_num = -1
+            if completeSize > 0:
+                ffdr_size = float(receivedSize / completeSize) * 100
+            else:
+                ffdr_size = -1
             tmp_str = str(date) + ',' + str(completeSize) + ',' \
                     + str(receivedSize) + ',' + str(receivedDelay) + ',' \
                     + str(completeProd) + ',' + str(receivedProd) + ',' \
-                    + feedtype + ',' + hostname + '\n'
+                    + str(thru) + ',' + str(ffdr_num) + ',' \
+                    + str(ffdr_size) + ',' + feedtype + ',' + hostname + '\n'
             outfile.write(tmp_str)
 
 
