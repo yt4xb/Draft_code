@@ -166,33 +166,31 @@ def main(logfile, csvfile):
 		logfile: Filename of the log file.
 		csvfile : Filename of the new file to contain output results.
 	"""
-
-	w = open(csvfile, 'w+')
-	Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
-	(hostname, error) = Object.communicate()
+ 	
 	local_time = datetime.utcnow()
-	start_time = local_time + timedelta(seconds=-60)
-	feedtype = "NGRID"
-	#while
-	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(start_time, feedtype, logfile)
-	(complete_size, complete_time, ffdr_size, ffdr_time) = \
-	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
-	tmp_str = 'Sender aggregate size (B),' \
-		  'Successfully received aggregate size (B), ' \
-		  'Successfully received aggregate delay (s),' \
-		  'Number of products successfully received,' \
-		  'Number of products sending,' \
-	  	  'Feedtype,' \
-	  	  'Hostname'+ '\n'
-	w.write(tmp_str)
-	tmp_str = str(complete_size) + ',' + str(ffdr_size) + ',' \
-		+ str(ffdr_time) + ',' + str(len(vset)) + ',' \
-		+ str(len(rx_success_set)) + ',' \
-		+ str(feedtype) + ',' \
-		+ str(hostname)
-	w.write(tmp_str)
-	w.close()
-
+        time = datetime.strptime(local_time, "%Y%m%dT%H%M%S.%fZ")
+        w = open(csvfile, 'w+')
+        Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
+        (hostname, error) = Object.communicate()
+        feedtype = "NGRID"
+        #while
+        (rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
+        (complete_size, complete_time, ffdr_size, ffdr_time) = \
+        aggThru(rx_success_set, rx_success_dict, vset, vset_size)
+        #tmp_str = 'Sender aggregate size (B),' \
+        #         'Successfully received aggregate size (B), ' \
+        #         'Successfully received aggregate delay (s),' \
+        #         'Number of products successfully received,' \
+        #         'Number of products sending,' \
+        #         'Feedtype,' \
+        #         'Hostname'+ '\n'
+        #w.write(tmp_str)
+        tmp_str = str(time) + ',' + str(complete_size) + ',' \
+                + str(ffdr_size) + ',' + str(ffdr_time) + ',' \
+                + str(len(vset)) + ',' + str(len(rx_success_set)) + ',' \
+                + str(feedtype) + ',' + str(hostname)
+        w.write(tmp_str)
+        w.close()
 
 if __name__ == "__main__":
 	main(sys.argv[1], sys.argv[2])
