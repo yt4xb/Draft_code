@@ -166,8 +166,8 @@ def main(logfile, csvfile):
 		logfile: Filename of the log file.
 		csvfile : Filename of the new file to contain output results.
 	"""
- 	
-	local_time = datetime.utcnow()
+
+	    local_time = datetime.utcnow()
         time = datetime.strptime(local_time, "%Y%m%dT%H%M%S.%fZ")
         w = open(csvfile, 'w+')
         Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
