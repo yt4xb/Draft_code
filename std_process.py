@@ -23,8 +23,7 @@ from datetime import datetime, timedelta
 
 
 def parse(start_time, end_time, line):
-    split_line = line.split()
-    time = datetime.strptime(split_line[1], "%Y%m%d%H%M%S.%f")
+    
     if time > start_time: 
 	if time < end_time:
     		size = int(split_line[0])
@@ -41,10 +40,15 @@ def main(logfile, csvfile):
     w = open(csvfile, 'w+')
     with open(logfile, 'r') as r:
     	for i, line in enumerate(r):
-        	(size, time) = parse(start_time, end_time, line)
-       		if size > 0:
-			tmp_str = str(time) + ',' + str(complete_size) + '\n'
-        		w.write(tmp_str)
+		split_line = line.split()
+    		time = datetime.strptime(split_line[1], "%Y%m%d%H%M%S.%f")
+       		if time > start_time: 
+			if time < end_time:
+				print time
+    				size = int(split_line[0])
+				tmp_str = str(time) + ',' \
+					+ str(size) + '\n' 
+				w.write(tmp_str)
     r.close()
     w.close()
 
