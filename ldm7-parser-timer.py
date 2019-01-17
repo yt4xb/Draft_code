@@ -21,7 +21,7 @@ import re
 import sys
 import pytz
 from dateutil.parser import parse
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def parseLDM(line):
@@ -39,17 +39,21 @@ def parseLDM(line):
         (prodindex, prodsize, rxtime): A tuple of product index, product size
                                        and receiving time.
     """
-    split_line = line.split()
-    # the last column is product index
-    prodindex = int(split_line[-1])
-    # col 6 is size in bytes
-    size = int(split_line[6])
-    # col 0 is the arrival time, col 7 is the insertion time.
-    arrival_time = parse(split_line[0]).astimezone(pytz.utc)
-    arrival_time = arrival_time.replace(tzinfo=None)
-    insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
-    rxtime = (arrival_time - insert_time).total_seconds()
-    return (prodindex, size, rxtime)
+    match = re.search(r'.*mldm.*Received', line)
+    if match:
+    	split_line = line.split()
+    
+    	prodindex = int(split_line[-1])
+   
+    	size = int(split_line[6])
+    
+    	arrival_time = parse(split_line[0]).astimezone(pytz.utc)
+    	arrival_time = arrival_time.replace(tzinfo=None)
+    	insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
+    	rxtime = (arrival_time - insert_time).total_seconds()
+    	return (prodindex, size, rxtime)
+    else:
+	return (-1, -1, -1)
 
 def aggregate(filename, aggregate_interval):
     """Does aggregating on the given input csv.
@@ -67,18 +71,22 @@ def aggregate(filename, aggregate_interval):
     groups   = []
     group    = []
     sizes    = []
-    basetime = datetime.datetime(2017, 8, 1, 0, 0, 0)
+    sum_size = 0
+    basetime = datetime(2018, 11, 16, 16, 0, 0)
     with open(filename, 'rb') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=' ')
         for i, row in enumerate(csvreader):
             timestamp = row[1]
-            group.append(i)
-            sum_size += int(row[0])
-            if timestamp - timedelta(seconds=aggregate_interval) > basetime:
-                groups.append(group)
+	    prodtime = datetime.strptime(timestamp, "%Y%m%d%H%M%S.%f")
+	    if prodtime - timedelta(seconds=aggregate_interval) > basetime:
+		groups.append(group)
                 sizes.append(sum_size)
                 group    = []
                 sum_size = 0
+		basetime = basetime + timedelta(seconds=aggregate_interval)
+	    if prodtime - timedelta(seconds=aggregate_interval) < basetime:
+            	group.append(i)
+            	sum_size += int(row[0])    
         if group and sum_size:
             groups.append(group)
             sizes.append(sum_size)
@@ -130,12 +138,12 @@ def calcThroughput(tx_group, complete_set, complete_dict):
     if complete_time:
         thru = float(complete_size / complete_time) * 8
     else:
-        thru = -1
+        thru = 0
     return (thru, complete_size)
 
 
 
-def main(logfile, csvfile):
+def main(metadata, logfile, csvfile):
     """Reads the raw log file and parses it.
 
     Reads the raw ldmd log file, parses each line and computes throughput
@@ -148,21 +156,26 @@ def main(logfile, csvfile):
     """
     w = open(csvfile, 'w+')
     aggregate_interval = 60
-    (tx_groups, tx_sizes) = aggregate(logfile, aggregate_interval)
-    (rx_success_set, rx_success_dict, vset) = extractLog(logfile)
+    (tx_groups, tx_sizes) = aggregate(metadata, aggregate_interval)
+    (rx_success_set, rx_success_dict) = extractLog(logfile)
     tmp_str = 'Sent first prodindex, Sent last prodindex, Sender aggregate ' \
               'size (B), Successfully received aggregate size (B), ' \
               'Throughput (bps)' + '\n'
     w.write(tmp_str)
     for group, size in zip(tx_groups, tx_sizes):
-        (thru, rx_group_size) = calcThroughput(set(group), rx_success_set,
-                                               rx_success_dict)
-        tmp_str = str(min(group)) + ',' + str(max(group)) + ',' \
-                + str(size) + ',' + str(rx_group_size) + ',' \
-                + str(thru) + ',' + '\n'
-        w.write(tmp_str)
+	if size != 0:
+        	(thru, rx_group_size) = calcThroughput(set(group), rx_success_set,
+                                               	rx_success_dict)
+        	tmp_str = str(min(group)) + ',' + str(max(group)) + ',' \
+                	+ str(size) + ',' + str(rx_group_size) + ',' \
+                	+ str(thru) + ',' + '\n'
+        	w.write(tmp_str)
+	else:
+		tmp_str = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' \
+                	+ str(0) + ',' + '\n' 
+		w.write(tmp_str)
     w.close()
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
