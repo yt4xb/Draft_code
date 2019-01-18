@@ -24,7 +24,7 @@ from dateutil.parser import parse
 from datetime import datetime, timedelta
 
 
-def parseLDM(line):
+def parseLDM(index, line):
     """Parses the product size and elapsed time received by MLDM.
 
     Parses the product size and elapsed receiving time consumed
@@ -39,21 +39,17 @@ def parseLDM(line):
         (prodindex, prodsize, rxtime): A tuple of product index, product size
                                        and receiving time.
     """
-    match = re.search(r'.*mldm.*Received', line)
-    if match:
-    	split_line = line.split()
-    
-    	prodindex = int(split_line[-1])
+    split_line = line.split()
+    prodindex = index
    
-    	size = int(split_line[6])
+    size = int(split_line[4])
     
-    	arrival_time = parse(split_line[0]).astimezone(pytz.utc)
-    	arrival_time = arrival_time.replace(tzinfo=None)
-    	insert_time  = datetime.strptime(split_line[7], "%Y%m%d%H%M%S.%f")
-    	rxtime = (arrival_time - insert_time).total_seconds()
-    	return (prodindex, size, rxtime)
-    else:
-	return (-1, -1, -1)
+    arrival_time = parse(split_line[0]).astimezone(pytz.utc)
+    arrival_time = arrival_time.replace(tzinfo=None)
+    insert_time  = datetime.strptime(split_line[5], "%Y%m%d%H%M%S.%f")
+    rxtime = (arrival_time - insert_time).total_seconds()
+    return (prodindex, size, rxtime)
+    
 
 def aggregate(filename, aggregate_interval):
     """Does aggregating on the given input csv.
@@ -72,24 +68,23 @@ def aggregate(filename, aggregate_interval):
     group    = []
     sizes    = []
     sum_size = 0
-    basetime = datetime(2018, 11, 16, 16, 0, 0)
+    basetime = datetime(2019, 1, 16, 7, 0, 0)
     with open(filename, 'rb') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=' ')
         for i, row in enumerate(csvreader):
             timestamp = row[1]
-	    prodtime = datetime.strptime(timestamp, "%Y%m%d%H%M%S.%f")
+	    prodtime = datetime.strptime(timestamp, "%Y%m%d%H%M%S.%f")	  
 	    if prodtime - timedelta(seconds=aggregate_interval) > basetime:
 		groups.append(group)
-                sizes.append(sum_size)
+		sizes.append(sum_size)
                 group    = []
                 sum_size = 0
 		basetime = basetime + timedelta(seconds=aggregate_interval)
-	    if prodtime - timedelta(seconds=aggregate_interval) < basetime:
-            	group.append(i)
-            	sum_size += int(row[0])    
+	    group.append(i)
+            sum_size += int(row[0])  
         if group and sum_size:
             groups.append(group)
-            sizes.append(sum_size)
+	    sizes.append(sum_size)
     csvfile.close()
     return (groups, sizes)
 
@@ -109,7 +104,7 @@ def extractLog(filename):
     vset = set()
     with open(filename, 'r') as logfile:
         for i, line in enumerate(logfile):
-            (mprodid, msize, mrxtime) = parseLDM(line)
+            (mprodid, msize, mrxtime) = parseLDM(i, line)
             if mprodid >= 0:
                 complete_set |= {mprodid}
                 if not complete_dict.has_key(mprodid):
@@ -164,8 +159,7 @@ def main(metadata, logfile, csvfile):
     w.write(tmp_str)
     for group, size in zip(tx_groups, tx_sizes):
 	if size != 0:
-        	(thru, rx_group_size) = calcThroughput(set(group), rx_success_set,
-                                               	rx_success_dict)
+        	(thru, rx_group_size) = calcThroughput(set(group), rx_success_set, rx_success_dict)
         	tmp_str = str(min(group)) + ',' + str(max(group)) + ',' \
                 	+ str(size) + ',' + str(rx_group_size) + ',' \
                 	+ str(thru) + ',' + '\n'
