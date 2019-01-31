@@ -14,14 +14,17 @@ searchResults1 =  jsonData
 #		node.append(er['domains'][0]['nodes'][0]['address'])
 #node_id = searchResults1['domains'][0]['nodes'][0]['id']
 domains = searchResults1['domains'][0]
-nodes = domains['nodes'][0]
-node_address = nodes['address']
-ports = nodes['ports'][0]
-links = ports['links']
+
+#nodes = domains['nodes'][0]
+#node_address = nodes['address']
+#ports = nodes['ports'][0]
+#links = ports['links']
 #for key, value in searchResults1.iteritems():
 #	print key, value
 
-data = {"withlocation": 0, "topology" : {"nodes": node_address, "links" : links}}
+#data = {"withlocation": 0, "topology" : {"nodes": node_address, "links" : links}}
+
+data = {"domains": domains}
 with open(logname, 'w+') as l:	
     json.dump(data, l)
 l.close()
@@ -32,4 +35,4 @@ l.close()
 #for er in searchResults2:
 #	if er['link'] != None:
 #		link.append(er['link'])
-print node_address
+

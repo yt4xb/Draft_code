@@ -8,8 +8,7 @@ nodes = []
 path = []
 links = []
 filename = sys.argv[1]
-#source = sys.argv[2]
-#target = sys.argv[3]
+logname = sys.argv[2]
 with open(filename, 'r+') as f:
     jsonData = json.load(f)
 f.close()
@@ -35,7 +34,11 @@ for er in node:
                 paths.append(path)
                 G.add_edge(str(tmp_source), str(tmp_target))
                 path = []
-print G.nodes()
-print G.edges()
-for i in G.neighbors('kans-cr5'):
-	print i
+paths = []
+with open(logname, 'w+') as l:
+	for i in nodes:
+		path = nx.single_source_shortest_path(G, i)
+		tmp = {i:path}		
+		json.dump(tmp, l)
+		paths.append(path)		
+l.close()
