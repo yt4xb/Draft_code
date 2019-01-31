@@ -4,7 +4,7 @@
 """
 Copyright (C) 2018 University of Virginia. All rights reserved.
 
-file      ldm7-rtstats.py
+file      ldm7-rtstats-timer.py
 author    Yuanlong Tan <yt4xb@virginia.edu>
 version   1.0
 date      Oct. 1, 2018
@@ -168,7 +168,7 @@ def main(logfile, csvfile):
 	"""
 
 	    local_time = datetime.utcnow()
-        time = datetime.strptime(local_time, "%Y%m%dT%H%M%S.%fZ")
+        
         w = open(csvfile, 'w+')
         Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
         (hostname, error) = Object.communicate()
