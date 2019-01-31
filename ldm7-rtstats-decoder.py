@@ -22,6 +22,7 @@ def readfile(filename):
         data = []
         for i, line in infile:
             data[i] = line.split()
+    filename.close()
     return data
 
 # connect to mongodb and insert data
