@@ -160,14 +160,13 @@ def main(logfile, csvfile):
 		logfile: Filename of the log file.
 		csvfile : Filename of the new file to contain output results.
 	"""
-
 	w = open(csvfile, 'w+')
 	Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
 	(hostname, error) = Object.communicate()
-    local_time = subprocess.Popen(['date', '-u', '+%Y%m%dT%H%M%SZ'], stdout=subprocess.PIPE)
-    (time, error) = local_time.communicate()
-    time = time.strip('\n')
-    feedtype = "NGRID"
+	local_time = subprocess.Popen(['date', '-u', '+%Y%m%dT%H%M%SZ'], stdout=subprocess.PIPE)
+        (time, error) = local_time.communicate()
+        time = time.strip('\n')
+	feedtype = "NGRID"
 	#while
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
@@ -181,9 +180,9 @@ def main(logfile, csvfile):
 	#	  'Hostname'+ '\n'
 	#w.write(tmp_str)
 	tmp_str = str(time) + ',' + str(complete_size) + ',' \
-            + str(ffdr_size) + ',' + str(ffdr_time) + ',' \
-            + str(len(vset)) + ',' + str(len(rx_success_set)) + ',' \
-		    + str(feedtype) + ',' + str(hostname)
+		+ str(ffdr_size) + ',' + str(ffdr_time) + ',' \
+		+ str(len(vset)) + ',' + str(len(rx_success_set)) + ',' \
+		+ str(feedtype) + ',' + str(hostname)
 	w.write(tmp_str)
 	w.close()
 
