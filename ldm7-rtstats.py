@@ -150,7 +150,7 @@ def aggThru(complete_set, complete_dict, vset, vset_dict):
 
 
 
-def main(logfile, csvfile):
+def main(logfile, csvfile, feedtype):
 	"""Reads the raw log file and parses it.
 
 	Reads the raw ldmd log file, parses each line and computes throughput
@@ -166,19 +166,10 @@ def main(logfile, csvfile):
 	local_time = subprocess.Popen(['date', '-u', '+%Y%m%dT%H%M%SZ'], stdout=subprocess.PIPE)
         (time, error) = local_time.communicate()
         time = time.strip('\n')
-	feedtype = "NGRID"
-	#while
+
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
-	#tmp_str = 'Sender aggregate size (B),' \
-	#	  'Successfully received aggregate size (B), ' \
-	#	  'Successfully received aggregate delay (s),' \
-	#	  'Number of products successfully received,' \
-	#	  'Number of products sending,' \
-	# 	  'Feedtype,' \
-	#	  'Hostname'+ '\n'
-	#w.write(tmp_str)
 	tmp_str = str(time) + ',' + str(complete_size) + ',' \
 		+ str(ffdr_size) + ',' + str(ffdr_time) + ',' \
 		+ str(len(vset)) + ',' + str(len(rx_success_set)) + ',' \
@@ -188,4 +179,4 @@ def main(logfile, csvfile):
 
 
 if __name__ == "__main__":
-	main(sys.argv[1], sys.argv[2])
+	main(sys.argv[1], sys.argv[2], sys.argv[3])
