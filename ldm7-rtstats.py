@@ -149,7 +149,7 @@ def aggThru(complete_set, complete_dict, vset, vset_dict):
 		ffdr_time += vset_dict[i][1]
 	return (complete_size, complete_time, ffdr_size, ffdr_time)
 
-def CalcThru(complete_set, complete_dict, vset, vset_dict):
+def calcThru(complete_set, complete_dict, vset, vset_dict):
 	"""Calculating throughput.
 
 	Args:
@@ -162,18 +162,18 @@ def CalcThru(complete_set, complete_dict, vset, vset_dict):
 		(Lmaxthru): metrics for calculating throughputs.
 	"""
     ffdr_size = 0
-	ffdr_time = 0
+    ffdr_time = 0
     thru = []
-	for i in vset:
+    for i in vset:
         size_tmp = vset_dict[i][0]
         time_tmp = vset_dict[i][1]
         if time_tmp > ffdr_time:
-		          ffdr_size = size_tmp
-                  ffdr_time = time_tmp
+            ffdr_size = size_tmp
+            ffdr_time = time_tmp
         thru.append(size_tmp/time_tmp)
     eightThru = np.percentile(thru,80)
     LmaxThru = ffdr_size/ffdr_time
-	return (LmaxThru, eightThru)
+    return (LmaxThru, eightThru)
 
 def main(logfile, csvfile, feedtype):
 	"""Reads the raw log file and parses it.
