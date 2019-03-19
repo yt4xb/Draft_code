@@ -195,7 +195,7 @@ def main(logfile, csvfile, feedtype):
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
-    (LmaxThru, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
+	(LmaxThru, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
 	tmp_str = str(time) + ',' + str(hostname) + ',' \
 		+ str(feedtype) + ',' + str(complete_size) + ',' \
         + str(ffdr_size) + ',' + str(len(vset)) + ',' \
