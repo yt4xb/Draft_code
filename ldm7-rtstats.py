@@ -17,6 +17,7 @@ from __future__ import division
 import csv
 import re
 import sys
+import numpy as np
 #import pytz
 import subprocess
 #from dateutil.parser import parse
@@ -148,7 +149,31 @@ def aggThru(complete_set, complete_dict, vset, vset_dict):
 		ffdr_time += vset_dict[i][1]
 	return (complete_size, complete_time, ffdr_size, ffdr_time)
 
+def CalcThru(complete_set, complete_dict, vset, vset_dict):
+	"""Calculating throughput.
 
+	Args:
+		complete_set: Set of complete products.
+		complete_dict: Dict of complete products.
+		vset:
+		vset_dict:
+
+	Returns:
+		(Lmaxthru): metrics for calculating throughputs.
+	"""
+    ffdr_size = 0
+	ffdr_time = 0
+    thru = []
+	for i in vset:
+        size_tmp = vset_dict[i][0]
+        time_tmp = vset_dict[i][1]
+        if time_tmp > ffdr_time:
+		          ffdr_size = size_tmp
+                  ffdr_time = time_tmp
+        thru.append(size_tmp/time_tmp)
+    eightThru = np.percentile(thru,80)
+    LmaxThru = ffdr_size/ffdr_time
+	return (LmaxThru, eightThru)
 
 def main(logfile, csvfile, feedtype):
 	"""Reads the raw log file and parses it.
@@ -170,10 +195,12 @@ def main(logfile, csvfile, feedtype):
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
-	tmp_str = str(time) + ',' + str(complete_size) + ',' \
-		+ str(ffdr_size) + ',' + str(ffdr_time) + ',' \
-		+ str(len(vset)) + ',' + str(len(rx_success_set)) + ',' \
-		+ str(feedtype) + ',' + str(hostname)
+    (LmaxThru, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
+	tmp_str = str(time) + ',' + str(hostname) + ',' \
+		+ str(feedtype) + ',' + str(complete_size) + ',' \
+        + str(ffdr_size) + ',' + str(len(vset)) + ',' \
+		+ str(len(rx_success_set)) + ',' + str(ffdr_time) + ',' \
+		+ str(LmaxThru) + ',' + str(eightThru)
 	w.write(tmp_str)
 	w.close()
 
