@@ -189,9 +189,9 @@ def main(logfile, csvfile, feedtype):
 	Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
 	(hostname, error) = Object.communicate()
 	local_time = subprocess.Popen(['date', '-u', '+%Y%m%dT%H%M%SZ'], stdout=subprocess.PIPE)
-    (time, error) = local_time.communicate()
-    time = time.strip('\n')
-    hostname = hostname.strip('\n')
+    	(time, error) = local_time.communicate()
+    	time = time.strip('\n')
+    	hostname = hostname.strip('\n')
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
