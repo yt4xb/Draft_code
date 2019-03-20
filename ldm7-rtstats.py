@@ -165,18 +165,22 @@ def calcThru(complete_set, complete_dict, vset, vset_dict):
     	ffdr_time = 0
     	thru = []
     	for i in vset:
-        	size_tmp = vset_dict[i][0]
-        	time_tmp = vset_dict[i][1]
-        	if time_tmp > ffdr_time:
-            		ffdr_size = size_tmp
-            		ffdr_time = time_tmp
-		if time_tmp == 0:
-			thru.append(0)
-		else:        	
-			thru.append(size_tmp/time_tmp)
-    	eightThru = np.percentile(thru,80)
-    	LmaxThru = ffdr_size/ffdr_time
-    	return (LmaxThru, eightThru)
+                size_tmp = vset_dict[i][0]
+                time_tmp = vset_dict[i][1]
+                if time_tmp > ffdr_time:
+                        ffdr_size = size_tmp
+                        ffdr_time = time_tmp
+                if time_tmp == 0:
+                        thru.append(0)
+                else:           
+                        thru.append(size_tmp/time_tmp)
+        if not thru:
+                eightThru = 0
+                LmaxThru = 0
+        else:
+                eightThru = np.percentile(thru,80)
+                LmaxThru = ffdr_size/ffdr_time
+        return (LmaxThru, eightThru)
 
 def main(logfile, csvfile, feedtype):
 	"""Reads the raw log file and parses it.
