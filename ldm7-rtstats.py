@@ -170,7 +170,10 @@ def calcThru(complete_set, complete_dict, vset, vset_dict):
         	if time_tmp > ffdr_time:
             		ffdr_size = size_tmp
             		ffdr_time = time_tmp
-        	thru.append(size_tmp/time_tmp)
+		if time_tmp == 0:
+			thru.append(0)
+		else:        	
+			thru.append(size_tmp/time_tmp)
     	eightThru = np.percentile(thru,80)
     	LmaxThru = ffdr_size/ffdr_time
     	return (LmaxThru, eightThru)
