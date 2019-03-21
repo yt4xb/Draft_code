@@ -167,21 +167,20 @@ def calcThru(complete_set, complete_dict, vset, vset_dict):
     	ffdr_time = 0
 	thru = []
     	for i in vset:
-		if time_tmp > 0:
+		if vset_dict[i][1] > 0:
 		        size_tmp = vset_dict[i][0]
 		        time_tmp = vset_dict[i][1]
                 	if time_tmp > ffdr_time:
 		                ffdr_size = size_tmp
 		                ffdr_time = time_tmp
 			thru_tmp = size_tmp/time_tmp
-               		thru.append(thru_tmp)
-	if thru.size() == vset_dict[][0].size():
-		print 1111		
+               		thru.append(thru_tmp)	
         if not thru:
                 eightThru = 0
         else:
                 eightThru = np.percentile(thru,80)
-        return (ffdr_size, ffdr_time, eightThru)
+		MinThru = min(thru)
+        return (ffdr_size, ffdr_time, MinThru, eightThru)
 
 def main(logfile, csvfile, feedtype):
 	"""Reads the raw log file and parses it.
@@ -203,12 +202,13 @@ def main(logfile, csvfile, feedtype):
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
-	(max_size, max_time, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
+	(max_size, max_time, MinThru, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
 	tmp_str = str(time) + ',' + str(hostname) + ',' \
 		+ str(feedtype) + ',' + str(complete_size) + ',' \
         + str(ffdr_size) + ',' + str(len(vset)) + ',' \
 		+ str(len(rx_success_set)) + ',' + str(ffdr_time) + ',' \
-		+ str(max_size) + ',' + str(max_time) + ',' + str(eightThru) + '\n'
+		+ str(max_size) + ',' + str(max_time) + ',' \
+		+ str(MinThru) + ',' + str(eightThru) + '\n'
 	w.write(tmp_str)
 	w.close()
 
