@@ -140,13 +140,15 @@ def aggThru(complete_set, complete_dict, vset, vset_dict):
 	complete_size = 0
 	complete_time = 0
 	for i in complete_set:
-		complete_size += complete_dict[i][0]
-		complete_time += complete_dict[i][1]
+		if complete_dict[i][1] > 0:
+			complete_size += complete_dict[i][0]
+			complete_time += complete_dict[i][1]
 	ffdr_size = 0
 	ffdr_time = 0
 	for i in vset:
-		ffdr_size += vset_dict[i][0]
-		ffdr_time += vset_dict[i][1]
+		if complete_dict[i][1] > 0:
+			ffdr_size += vset_dict[i][0]
+			ffdr_time += vset_dict[i][1]
 	return (complete_size, complete_time, ffdr_size, ffdr_time)
 
 def calcThru(complete_set, complete_dict, vset, vset_dict):
