@@ -185,9 +185,7 @@ def calcThru(complete_set, complete_dict, vset, vset_dict):
 		Num = thru.index(MinThru)
 		Min_size = vset_dict[index[Num]][0]
 		Min_time = vset_dict[index[Num]][1]
-		print MinThru
-		print Min_size/Min_time
-        return (ffdr_size, ffdr_time, MinThru, eightThru)
+        return (ffdr_size, ffdr_time, Min_size, Min_time, eightThru)
 
 def main(logfile, csvfile, feedtype):
 	"""Reads the raw log file and parses it.
@@ -209,13 +207,14 @@ def main(logfile, csvfile, feedtype):
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
-	(max_size, max_time, MinThru, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
+	(max_size, max_time, Min_size, Min_time, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
 	tmp_str = str(time) + ',' + str(hostname) + ',' \
 		+ str(feedtype) + ',' + str(complete_size) + ',' \
         + str(ffdr_size) + ',' + str(len(vset)) + ',' \
 		+ str(len(rx_success_set)) + ',' + str(ffdr_time) + ',' \
 		+ str(max_size) + ',' + str(max_time) + ',' \
-		+ str(MinThru) + ',' + str(eightThru) + '\n'
+		+ str(Min_size) + ',' + str(Min_time) + ',' \ 
+		+ str(eightThru) + '\n'
 	w.write(tmp_str)
 	w.close()
 
