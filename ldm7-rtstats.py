@@ -165,6 +165,7 @@ def calcThru(complete_set, complete_dict, vset, vset_dict):
 	"""
     	ffdr_size = 0
     	ffdr_time = 0
+	index = []
 	thru = []
     	for i in vset:
 		if vset_dict[i][1] > 0:
@@ -174,12 +175,18 @@ def calcThru(complete_set, complete_dict, vset, vset_dict):
 		                ffdr_size = size_tmp
 		                ffdr_time = time_tmp
 			thru_tmp = size_tmp/time_tmp
+			index.append(i)
                		thru.append(thru_tmp)	
         if not thru:
                 eightThru = 0
         else:
                 eightThru = np.percentile(thru,80)
 		MinThru = min(thru)
+		Num = thru.index(MinThru)
+		Min_size = vset_dict[index[Num]][0]
+		Min_time = vset_dict[index[Num]][1]
+		print MinThru
+		print Min_size/Min_time
         return (ffdr_size, ffdr_time, MinThru, eightThru)
 
 def main(logfile, csvfile, feedtype):
