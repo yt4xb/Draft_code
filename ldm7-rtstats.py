@@ -137,19 +137,22 @@ def aggThru(complete_set, complete_dict, vset, vset_dict):
 	Returns:
 		(complete_size, complete_time, ffdr_size, ffdr_time): metrics for calculating throughputs.
 	"""
+	count = 0
 	complete_size = 0
 	complete_time = 0
 	for i in complete_set:
 		if complete_dict[i][1] > 0:
 			complete_size += complete_dict[i][0]
 			complete_time += complete_dict[i][1]
+		else:
+			count += 1
 	ffdr_size = 0
 	ffdr_time = 0
 	for i in vset:
 		if complete_dict[i][1] > 0:
 			ffdr_size += vset_dict[i][0]
 			ffdr_time += vset_dict[i][1]
-	return (complete_size, complete_time, ffdr_size, ffdr_time)
+	return (complete_size, complete_time, ffdr_size, ffdr_time, count)
 
 def calcThru(complete_set, complete_dict, vset, vset_dict):
 	"""Calculating throughput.
@@ -205,7 +208,7 @@ def main(logfile, csvfile, feedtype):
     	time = time.strip('\n')
     	hostname = hostname.strip('\n')
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
-	(complete_size, complete_time, ffdr_size, ffdr_time) = \
+	(complete_size, complete_time, ffdr_size, ffdr_time, count) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
 	(max_size, max_time, Min_size, Min_time, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
 	tmp_str = str(time) + ',' + str(hostname) + ',' \
@@ -213,8 +216,8 @@ def main(logfile, csvfile, feedtype):
         + str(ffdr_size) + ',' + str(len(vset)) + ',' \
 		+ str(len(rx_success_set)) + ',' + str(ffdr_time) + ',' \
 		+ str(max_size) + ',' + str(max_time) + ',' \
-		+ str(Min_size) + ',' + str(Min_time) + ',' \ 
-		+ str(eightThru) + '\n'
+		+ str(Min_size) + ',' + str(Min_time) + ',' \
+		+ str(eightThru) + ',' + str(count) + '\n'
 	w.write(tmp_str)
 	w.close()
 
