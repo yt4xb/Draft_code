@@ -213,8 +213,8 @@ def main(logfile, csvfile, feedtype):
 	(max_size, max_time, Min_size, Min_time, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
 	tmp_str = str(time) + ',' + str(hostname) + ',' \
 		+ str(feedtype) + ',' + str(complete_size) + ',' \
-        + str(ffdr_size) + ',' + str(len(vset)) + ',' \
-		+ str(len(rx_success_set)) + ',' + str(ffdr_time) + ',' \
+        	+ str(ffdr_size) + ',' + str(len(rx_success_set)) + ',' \
+		+ str(len(vset))+ ',' + str(ffdr_time) + ',' \
 		+ str(max_size) + ',' + str(max_time) + ',' \
 		+ str(Min_size) + ',' + str(Min_time) + ',' \
 		+ str(eightThru) + ',' + str(count) + '\n'
