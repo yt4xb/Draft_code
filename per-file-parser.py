@@ -116,14 +116,14 @@ def main(logfile, csvfile):
     max_value = max(latencies)
     num = latencies.index(max_value)
     max_size = sizes[num]
-    tmp_thru = max_size/max_value
-    print max_value
+    tmp_thru = max_size*8/max_value
+    #print max_value
     print tmp_thru
     count = 0
     for i in latencies:
 	if i < 0:
 	    count += 1
-    print count
+    #print count
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
