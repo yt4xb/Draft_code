@@ -102,28 +102,38 @@ def main(logfile, csvfile):
         csvfile : Filename of the new file to contain output results.
     """
     w = open(csvfile, 'w+')
+    rate = 500000000
+    RTT = 0.00006
+    pre_count = 0
+	
     sizes = []
     latencies = []
     (rx_success_set, rx_success_dict) = extractLog(logfile)
     tmp_str = 'prodindex, latency (s)' + '\n'
     w.write(tmp_str)
     for i in rx_success_set:
-	latencies.append(rx_success_dict[i][1])
-	sizes.append(rx_success_dict[i][0])
-	tmp_str = str(i) + ',' + str(rx_success_dict[i][0]) + ',' + str(rx_success_dict[i][1]) + '\n'
+	if rx_success_dict[i][1] > 0:
+		latencies.append(rx_success_dict[i][1])
+		sizes.append(rx_success_dict[i][0])
+		prop_delay = RTT/2
+		emission_delay = rx_success_dict[i][0] * 8 / rate
+		real_time = rx_success_dict[i][1] - prop_delay - emission_delay
+		per_thru = rx_success_dict[i][0] * 8 / rx_success_dict[i][1]
+		tmp_str = str(i) + ',' + str(rx_success_dict[i][0]) + ',' + str(rx_success_dict[i][1]) + ',' \
+		+ str(real_time) + ',' + str(per_thru) + '\n'
+	else:
+		count += 1
+		tmp_str = str(i) + ',' + str(rx_success_dict[i][0]) + '\n'
 	w.write(tmp_str)
     w.close()
     max_value = max(latencies)
     num = latencies.index(max_value)
     max_size = sizes[num]
-    tmp_thru = max_size*8/max_value
+    tmp_thru = max_size/max_value
     #print max_value
-    print tmp_thru
-    count = 0
-    for i in latencies:
-	if i < 0:
-	    count += 1
+    #print tmp_thru
     #print count
+    
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
