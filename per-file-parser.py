@@ -102,21 +102,21 @@ def main(logfile, csvfile):
         csvfile : Filename of the new file to contain output results.
     """
     w = open(csvfile, 'w+')
-    thru = []
+    sizes = []
     latencies = []
     (rx_success_set, rx_success_dict) = extractLog(logfile)
     tmp_str = 'prodindex, latency (s)' + '\n'
     w.write(tmp_str)
     for i in rx_success_set:
 	latencies.append(rx_success_dict[i][1])
-	tmp = rx_success_dict[i][0] / rx_success_dict[i][1]
-	thru.append(tmp)
+	sizes.append(rx_success_dict[i][0])
 	tmp_str = str(i) + ',' + str(rx_success_dict[i][0]) + ',' + str(rx_success_dict[i][1]) + '\n'
 	w.write(tmp_str)
     w.close()
     max_value = max(latencies)
     num = latencies.index(max_value)
-    tmp_thru = thru[num]
+    max_size = sizes[num]
+    tmp_thru = max_size/max_value
     print max_value
     print tmp_thru
     count = 0
