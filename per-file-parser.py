@@ -109,7 +109,7 @@ def main(logfile, csvfile):
     sizes = []
     latencies = []
     (rx_success_set, rx_success_dict) = extractLog(logfile)
-    tmp_str = 'prodindex, latency (s)' + '\n'
+    tmp_str = 'prodindex, latency (s), delay, per_thru' + '\n'
     w.write(tmp_str)
     for i in rx_success_set:
 	if rx_success_dict[i][1] > 0:
