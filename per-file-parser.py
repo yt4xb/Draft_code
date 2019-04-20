@@ -91,7 +91,7 @@ def extractLog(filename):
     return (complete_set, complete_dict)
 
 
-def main(logfile, csvfile):
+def main(logfile, csvfile, rate, RTT):
     """Reads the raw log file and parses it.
 
     Reads the raw ldmd log file, parses each line and computes throughput
@@ -102,10 +102,8 @@ def main(logfile, csvfile):
         csvfile : Filename of the new file to contain output results.
     """
     w = open(csvfile, 'w+')
-    rate = 500000000
-    RTT = 0.00006
     pre_count = 0
-	
+    count = 0
     sizes = []
     latencies = []
     (rx_success_set, rx_success_dict) = extractLog(logfile)
@@ -115,14 +113,16 @@ def main(logfile, csvfile):
 	if rx_success_dict[i][1] > 0:
 		latencies.append(rx_success_dict[i][1])
 		sizes.append(rx_success_dict[i][0])
-		prop_delay = RTT/2
-		emission_delay = rx_success_dict[i][0] * 8 / rate
+		prop_delay = float(RTT)/2
+		emission_delay = rx_success_dict[i][0] * 8 / float(rate)
 		real_time = rx_success_dict[i][1] - prop_delay - emission_delay
+		if real_time < 0:
+			count += 1
 		per_thru = rx_success_dict[i][0] * 8 / rx_success_dict[i][1]
 		tmp_str = str(i) + ',' + str(rx_success_dict[i][0]) + ',' + str(rx_success_dict[i][1]) + ',' \
 		+ str(real_time) + ',' + str(per_thru) + '\n'
 	else:
-		count += 1
+		pre_count += 1
 		tmp_str = str(i) + ',' + str(rx_success_dict[i][0]) + '\n'
 	w.write(tmp_str)
     w.close()
@@ -132,8 +132,7 @@ def main(logfile, csvfile):
     tmp_thru = max_size/max_value
     #print max_value
     #print tmp_thru
-    #print count
-    
+    print str(count) + ',' + str(pre_count)
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
