@@ -123,7 +123,8 @@ def main(logfile, csvfile, rate, RTT):
 		+ str(real_time) + ',' + str(per_thru) + '\n'
 	else:
 		pre_count += 1
-		tmp_str = str(i) + ',' + str(rx_success_dict[i][0]) + '\n'
+		tmp_str = str(i) + ',' + str(rx_success_dict[i][0]) + ',' + str(rx_success_dict[i][1]) + ',' \
+		+ '0' + ',' + '0' + '\n'
 	w.write(tmp_str)
     w.close()
     max_value = max(latencies)
