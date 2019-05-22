@@ -44,14 +44,14 @@ def parseMLDM(feedtype, line):
                 match = re.search(r'.*Mldm.*Received', line)
                 if match:
                         split_line = line.split()
-                        # the last column is product index
-                        prodindex = int(split_line[16].split("\"")[0])
-                        # col 6 is size in bytes
-                        size = int(split_line[10])
+			prodindex = int(split_line[9].split(",")[0])
+                        # col 14 is size in bytes
+                        size = int(split_line[14])
                         # col 0 is the arrival time, col 7 is the insertion time.
                         # arrival_time = parse(split_line[0]).astimezone(pytz.utc).arrival_time.replace(tzinfo=None)
                         rxtime = float(split_line[6])
-                        return (prodindex, size, rxtime)
+			retrans = int(split_line[11].split(",")[0])
+                        return (prodindex, size, rxtime,retrans)
                 else:
                         return (-1, -1, -1)
         else:
@@ -108,14 +108,14 @@ def extractLog(feedtype, filename):
 	vset_dict = {}
 	with open(filename, 'r') as logfile:
 		for i, line in enumerate(logfile):
-			(mprodid, msize, mrxtime) = parseMLDM(feedtype, line)
+			(mprodid, msize, mrxtime, mretrans) = parseMLDM(feedtype, line)
 			(bprodid, bsize, brxtime) = parseBackstop(feedtype, line)
 			if mprodid >= 0:
 				complete_set |= {mprodid}
 				vset |= {mprodid}
 				if not complete_dict.has_key(mprodid):
-					complete_dict[mprodid] = (msize, mrxtime)
-					vset_dict [mprodid]= (msize, mrxtime)
+					complete_dict[mprodid] = (msize, mrxtime, mretrans)
+					vset_dict [mprodid]= (msize, mrxtime, mretrans)
 			elif bprodid >= 0:
 				complete_set |= {bprodid}
 				if not complete_dict.has_key(bprodid):
