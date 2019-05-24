@@ -3,8 +3,6 @@ while true
 do
   LastTimeStamp=$(date -u +'%Y%m%dT%H%M%S')
   DateStamp=$(echo $LastTimeStamp | sed 's/..$//g')
-  echo $LastTimeStamp
-  echo $DateStamp
   sleep 59
   less var/logs/ldmd.log | grep $DateStamp | grep -E "Received:|Inserted:" >& ldm7.log
   python util/ldm7-rtstats.py ldm7.log ldm7-rtstats.log HDS
