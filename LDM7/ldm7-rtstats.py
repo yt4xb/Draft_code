@@ -53,9 +53,9 @@ def parseMLDM(feedtype, line):
 			retrans = int(split_line[11].split(",")[0])
                         return (prodindex, size, rxtime,retrans)
                 else:
-                        return (-1, -1, -1)
+                        return (-1, -1, -1, -1)
         else:
-                return (-1, -1, -1)
+                return (-1, -1, -1, -1)
 
 
 def parseBackstop(feedtype, line):
@@ -164,8 +164,8 @@ def calcThru(complete_set, complete_dict, vset, vset_dict):
 	Returns:
 		(Lmaxthru): metrics for calculating throughputs.
 	"""
-    	ffdr_size = 0
-    	ffdr_time = 0
+    ffdr_size = 0
+    ffdr_time = 0
 	index = []
 	thru = []
     	for i in vset:
@@ -177,7 +177,7 @@ def calcThru(complete_set, complete_dict, vset, vset_dict):
 		                ffdr_time = time_tmp
 			thru_tmp = size_tmp/time_tmp
 			index.append(i)
-               		thru.append(thru_tmp)	
+               		thru.append(thru_tmp)
         if not thru:
                 eightThru = 0
         else:
@@ -202,16 +202,16 @@ def main(logfile, csvfile, feedtype):
 	Object = subprocess.Popen(["hostname"], stdout=subprocess.PIPE)
 	(hostname, error) = Object.communicate()
 	local_time = subprocess.Popen(['date', '-u', '+%Y%m%dT%H%M%SZ'], stdout=subprocess.PIPE)
-    	(time, error) = local_time.communicate()
-    	time = time.strip('\n')
-    	hostname = hostname.strip('\n')
+    (time, error) = local_time.communicate()
+    time = time.strip('\n')
+    hostname = hostname.strip('\n')
 	(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 	(complete_size, complete_time, ffdr_size, ffdr_time, count) = \
 	aggThru(rx_success_set, rx_success_dict, vset, vset_size)
 	(max_size, max_time, Min_size, Min_time, eightThru) = calcThru(rx_success_set, rx_success_dict, vset, vset_size)
 	tmp_str = str(time) + ',' + str(hostname) + ',' \
 		+ str(feedtype) + ',' + str(complete_size) + ',' \
-        	+ str(ffdr_size) + ',' + str(len(rx_success_set)) + ',' \
+        + str(ffdr_size) + ',' + str(len(rx_success_set)) + ',' \
 		+ str(len(vset))+ ',' + str(ffdr_time) + ',' \
 		+ str(max_size) + ',' + str(max_time) + ',' \
 		+ str(Min_size) + ',' + str(Min_time) + ',' \
