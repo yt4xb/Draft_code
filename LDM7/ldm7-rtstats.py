@@ -179,7 +179,7 @@ def main(logfile, csvfile, feedtype):
 	
 	For downstream LDM7 server:
 	TimeStamp, LDM7-server, LDM7-server-type, Feedtype, rx_success_set, vset, mc_num,
-	complete_size, ffdr_size, mc_size, ffdr_time, mc_time, blocks, neg_set
+	complete_size, ffdr_size, mc_size, ffdr_time, mc_time, blocks, neg_num
 
 	"""
 	w = open(csvfile, 'w+')
@@ -190,18 +190,19 @@ def main(logfile, csvfile, feedtype):
 	time = time.strip('\n')
 	hostname = hostname.strip('\n')
 	sender_hostname = "ldm7.frgp.net"
-	if sender_host in hostname:
+	if sender_hostname in hostname:
 		server_type = 0
+		vlan_rate = 30
 		tmp_str = str(time) + ',' + str(hostname) + ',' \
 			+ str(server_type) + ',' + str(feedtype) + ',' \
 			+ str(vlan_rate) + '\n'
 		w.write(tmp_str)
-	w.close()
+		w.close()
 	else:
 		server_type = 1
 		(rx_success_set, rx_success_dict, vset, vset_size) = extractLog(feedtype, logfile)
 		if rx_success_set != set([]):
-			(complete_size, complete_time, ffdr_size, ffdr_time, mc_size, mc_time, mc_num, blocks, neg) = \
+			(complete_size, complete_time, ffdr_size, ffdr_time, mc_size, mc_time, mc_num, blocks, neg_num) = \
 			aggThru(rx_success_set, rx_success_dict, vset, vset_size)
 			tmp_str = str(time) + ',' + str(hostname) + ',' \
 				+ str(server_type) + ',' + str(feedtype) + ',' \
@@ -209,7 +210,7 @@ def main(logfile, csvfile, feedtype):
 				+ str(mc_num) + ',' + str(complete_size) + ',' \
 				+ str(ffdr_size) + ',' + str(mc_size) + ',' \
 				+ str(ffdr_time) + ',' + str(mc_time) + ',' \
-				+ str(blocks) + ',' + str(neg_set) + '\n'
+				+ str(blocks) + ',' + str(neg_num) + '\n'
 			w.write(tmp_str)
 		w.close()
 
